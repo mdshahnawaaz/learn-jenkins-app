@@ -20,5 +20,18 @@ pipeline {
                 '''
             }
         }
+        stage('Find index'){
+            steps {
+                sh 'test -f build/index.html && echo "index.html found" || echo "index.html not found"'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh '''
+                   echo "Running tests..."
+                   npm run test
+                '''    
+            }
+        }
     }
 }
