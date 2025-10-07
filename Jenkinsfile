@@ -2,6 +2,8 @@ pipeline {
     agent any
 
     stages {
+        /*
+
         stage('Build') {
             agent {
                 docker {
@@ -11,20 +13,17 @@ pipeline {
             }
             steps {
                 sh '''
-                   ls -la
-                   npm --version
-                   node --version
-                   npm ci
-                   npm run build
-                   ls -la
+                    ls -la
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
+                    ls -la
                 '''
             }
         }
-        stage('Find index'){
-            steps {
-                sh 'test -f build/index.html && echo "index.html found" || echo "index.html not found"'
-            }
-        }
+        */
+
         stage('Test') {
             agent {
                 docker {
@@ -32,34 +31,37 @@ pipeline {
                     reuseNode true
                 }
             }
+
             steps {
                 sh '''
-                   echo "Running tests..."
-                   npm run test
-                '''    
+                    #test -f build/index.html
+                    npm test
+                '''
             }
         }
-        stage('E2E Test') {
+
+        stage('E2E') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.56.0-noble'
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
                     reuseNode true
                 }
             }
+
             steps {
                 sh '''
-                   npm install serve
-                   node_modules/serve -s build &
-                   sleep 10
-                   npx playwright test
-                '''    
+                    npm install serve
+                    node_modules/.bin/serve -s build &
+                    sleep 10
+                    npx playwright test
+                '''
             }
         }
     }
 
     post {
         always {
-            junit 'test-results/junit.xml'
+            junit 'jest-results/junit.xml'
         }
     }
 }
