@@ -83,7 +83,7 @@ pipeline {
         stage('Approval for Deployment to Production') {
             steps {
                 timeout(time: 1, unit: 'MINUTES') {
-                    input message: 'Approve Deployment to Production?', ok: 'Deploy'
+                    input message: 'Approve Deployment to Production?', ok: 'Deploy It'
                 }
             }
         }
