@@ -27,6 +27,13 @@ pipeline {
                 '''
             }
         }
+        stage('Docker Build') {
+            steps {
+                sh '''
+                    docker build -t learn-jenkins-app .
+                '''
+            }
+        }
         
         // stage('Test') {
         //     agent {
@@ -47,7 +54,8 @@ pipeline {
         stage('test and E2E') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    // image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'learn-jenkins-app'
                     reuseNode true
                 }
             }
@@ -87,6 +95,25 @@ pipeline {
                 }
             }
         }
+        // stage('Deploy') {
+        //     agent {
+        //         docker {
+        //             image 'node:18-alpine'
+        //             reuseNode true
+        //         }
+        //     }
+        //     steps {
+        //         sh '''
+        //             npm install netlify-cli@20.1.1 node-jq
+        //             node_modules/.bin/netlify --version
+        //             echo "Deploying to Netlify... with site ID $NETLIFY_SITE_ID"
+        //             node_modules/.bin/netlify status
+        //             node_modules/.bin/netlify deploy --dir=build --prod --json > deploy.json
+        //             node_modules/.bin/node-jq -r '.deploy_url' deploy.json
+        //         '''
+        //     }
+        
+        // }
         stage('Deploy') {
             agent {
                 docker {
@@ -96,12 +123,11 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install netlify-cli@20.1.1 node-jq
-                    node_modules/.bin/netlify --version
+                    netlify --version
                     echo "Deploying to Netlify... with site ID $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --prod --json > deploy.json
-                    node_modules/.bin/node-jq -r '.deploy_url' deploy.json
+                    netlify status
+                    netlify deploy --dir=build --prod --json > deploy.json
+                    node-jq -r '.deploy_url' deploy.json
                 '''
             }
         }
